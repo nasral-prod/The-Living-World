@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>The Living World — Ванильный сервер Minecraft с войсчатом и эмоциями</title>
+    <!-- Font Awesome 6 (иконки) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Playfair+Display:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0a0c10;
+            font-family: 'Inter', sans-serif;
+            color: #e2e4e9;
+            line-height: 1.5;
+            scroll-behavior: smooth;
+        }
+
+        /* Анимированный градиентный фон */
+        .bg-aura {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            background: radial-gradient(circle at 30% 20%, rgba(80, 100, 50, 0.12), transparent 50%),
+                        radial-gradient(circle at 85% 80%, rgba(100, 70, 40, 0.1), transparent 60%),
+                        radial-gradient(circle at 10% 70%, rgba(50, 80, 100, 0.08), transparent 55%);
+            animation: slowDrift 20s ease infinite alternate;
+        }
+
+        @keyframes slowDrift {
+            0% { opacity: 0.6; transform: scale(1); }
+            100% { opacity: 1; transform: scale(1.05); }
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+            position: relative;
+            z-index: 2;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #14171f;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #5c4a32;
+            border-radius: 4px;
+        }
+
+        /* Шапка */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 0 20px;
+            border-bottom: 1px solid rgba(210, 180, 120, 0.25);
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .logo-icon {
+            font-size: 36px;
+            color: #c9b27c;
+        }
+        .logo h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 26px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, #f0e6c5, #c9b27c);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .logo span {
+            font-size: 14px;
+            color: #8a7a62;
+            margin-left: 8px;
+            font-weight: 400;
+        }
+        .nav-links {
+            display: flex;
+            gap: 32px;
+        }
+        .nav-links a {
+            color: #d4cdb2;
+            text-decoration: none;
+            font-weight: 500;
+            transition: 0.2s;
+            font-size: 15px;
+        }
+        .nav-links a:hover {
+            color: #e7dbb6;
+            text-shadow: 0 0 6px rgba(200, 170, 100, 0.5);
+        }
+        .ip-copy {
+            background: rgba(30, 28, 24, 0.8);
+            backdrop-filter: blur(4px);
+            padding: 8px 18px;
+            border-radius: 60px;
+            font-family: monospace;
+            font-size: 16px;
+            border: 1px solid #5c4a32;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .ip-copy:hover {
+            background: #2a251e;
+            border-color: #b8914b;
+        }
+
+        /* Герой-секция */
+        .hero {
+            padding: 80px 0 60px;
+            text-align: center;
+        }
+        .hero h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 52px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff4e0, #cfbc8b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 20px;
+        }
+        .hero .tagline {
+            font-size: 20px;
+            color: #bfae85;
+            max-width: 700px;
+            margin: 0 auto 30px;
+        }
+        .hero .verse {
+            font-style: italic;
+            font-size: 15px;
+            color: #7f6e50;
+            margin-top: 30px;
+            border-top: 1px solid rgba(150, 130, 80, 0.3);
+            display: inline-block;
+            padding-top: 20px;
+        }
+
+        /* Блок с фичами */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 32px;
+            margin: 60px 0;
+        }
+        .feature-card {
+            background: rgba(20, 22, 28, 0.7);
+            backdrop-filter: blur(8px);
+            border-radius: 28px;
+            padding: 32px 28px;
+            border: 1px solid rgba(210, 180, 120, 0.2);
+            transition: transform 0.2s, border-color 0.2s;
+            text-align: center;
+        }
+        .feature-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(210, 180, 120, 0.5);
+        }
+        .feature-icon {
+            font-size: 52px;
+            color: #cdb27a;
+            margin-bottom: 24px;
+        }
+        .feature-card h3 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            font-family: 'Playfair Display', serif;
+        }
+        .feature-card p {
+            color: #b9af95;
+            line-height: 1.5;
+        }
+
+        /* Форма заявки */
+        .whitelist-form-section {
+            background: rgba(20, 28, 35, 0.7);
+            backdrop-filter: blur(8px);
+            border-radius: 36px;
+            padding: 48px 40px;
+            margin: 40px 0;
+            border: 1px solid rgba(80, 120, 100, 0.4);
+        }
+        .whitelist-form-section h3 {
+            font-size: 28px;
+            text-align: center;
+            margin-bottom: 16px;
+            font-family: 'Playfair Display', serif;
+        }
+        .whitelist-form-section .form-desc {
+            text-align: center;
+            color: #bfae85;
+            margin-bottom: 32px;
+        }
+        .form-group {
+            margin-bottom: 24px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            color: #cdb27a;
+        }
+        .form-group label i {
+            margin-right: 10px;
+            width: 24px;
+            color: #b49152;
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 14px 18px;
+            background: #0f1219;
+            border: 1px solid #3a3a4a;
+            border-radius: 16px;
+            color: #e2e4e9;
+            font-size: 16px;
+            font-family: 'Inter', sans-serif;
+            transition: 0.2s;
+        }
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #c9b27c;
+            box-shadow: 0 0 8px rgba(201, 178, 124, 0.3);
+        }
+        .form-group input::placeholder, .form-group textarea::placeholder {
+            color: #5a5a6e;
+        }
+        .submit-btn {
+            background: linear-gradient(95deg, #c9b27c, #a08a5a);
+            border: none;
+            padding: 16px 28px;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 18px;
+            color: #0a0c10;
+            cursor: pointer;
+            transition: 0.2s;
+            width: 100%;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(201, 178, 124, 0.3);
+        }
+        .form-message {
+            margin-top: 20px;
+            padding: 14px;
+            border-radius: 12px;
+            text-align: center;
+            display: none;
+        }
+        .form-message.success {
+            background: rgba(60, 120, 80, 0.3);
+            border: 1px solid #5a9e6e;
+            color: #a0e0b0;
+            display: block;
+        }
+        .form-message.error {
+            background: rgba(180, 60, 50, 0.3);
+            border: 1px solid #b05a4a;
+            color: #e0a090;
+            display: block;
+        }
+
+        /* Блок правил */
+        .rules {
+            background: rgba(10, 12, 18, 0.6);
+            border-radius: 36px;
+            padding: 48px 40px;
+            margin: 40px 0;
+            border: 1px solid rgba(170, 140, 80, 0.25);
+        }
+        .rules h3 {
+            font-size: 28px;
+            text-align: center;
+            margin-bottom: 32px;
+            font-family: 'Playfair Display', serif;
+        }
+        .rules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+        }
+        .rule-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: rgba(0,0,0,0.3);
+            padding: 14px 20px;
+            border-radius: 60px;
+            backdrop-filter: blur(2px);
+        }
+        .rule-item i {
+            font-size: 20px;
+            color: #c9ad6e;
+            width: 28px;
+            text-align: center;
+        }
+
+        /* Инфо-блок */
+        .info-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 32px;
+            margin: 60px 0;
+            justify-content: center;
+        }
+        .info-card {
+            background: rgba(16, 18, 24, 0.8);
+            backdrop-filter: blur(4px);
+            border-radius: 28px;
+            padding: 32px 28px;
+            flex: 1;
+            min-width: 200px;
+            text-align: center;
+            border: 1px solid rgba(201, 178, 124, 0.3);
+            transition: 0.2s;
+        }
+        .info-card:hover {
+            border-color: #c9b27c;
+            transform: translateY(-4px);
+        }
+        .info-card i {
+            font-size: 44px;
+            color: #b49152;
+            margin-bottom: 16px;
+        }
+        .info-card .value {
+            font-size: 32px;
+            font-weight: 700;
+            font-family: monospace;
+            color: #ecdcaa;
+        }
+        .info-card .label {
+            color: #8a7a62;
+            margin-top: 8px;
+        }
+
+        /* Кнопки CTA */
+        .cta {
+            text-align: center;
+            margin: 40px 0 80px;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: linear-gradient(95deg, #2f281c, #1f1b14);
+            padding: 16px 42px;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 18px;
+            color: #ecdcaa;
+            text-decoration: none;
+            border: 1px solid #7e693f;
+            transition: 0.2s;
+            margin: 0 12px;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background: #3f3524;
+            color: #fff0c0;
+            border-color: #c9a34b;
+            box-shadow: 0 0 12px rgba(190, 150, 70, 0.3);
+        }
+        .btn-discord {
+            background: linear-gradient(95deg, #2c2f4a, #1a1c2e);
+            border-color: #5a6e9e;
+        }
+        .btn-discord:hover {
+            background: #3b4070;
+            border-color: #8a9ecc;
+        }
+
+        /* Футер */
+        footer {
+            border-top: 1px solid rgba(150, 130, 80, 0.2);
+            padding: 32px 0;
+            text-align: center;
+            font-size: 14px;
+            color: #6a5e48;
+        }
+        footer i {
+            margin: 0 6px;
+        }
+
+        @media (max-width: 720px) {
+            .navbar {
+                flex-direction: column;
+                text-align: center;
+            }
+            .hero h2 {
+                font-size: 36px;
+            }
+            .rules, .whitelist-form-section {
+                padding: 32px 20px;
+            }
+            .btn {
+                margin: 8px;
+            }
+            .rules-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="bg-aura"></div>
+<div class="container">
+    <!-- Шапка -->
+    <div class="navbar">
+        <div class="logo">
+            <i class="fas fa-dragon logo-icon"></i>
+            <h1>THE LIVING WORLD</h1>
+            <span>· ванилла жива</span>
+        </div>
+        <div class="nav-links">
+            <a href="#features"><i class="fas fa-info-circle"></i> О сервере</a>
+            <a href="#rules"><i class="fas fa-scroll"></i> Заветы</a>
+            <a href="#whitelist"><i class="fas fa-shield-alt"></i> Вайтлист</a>
+            <a href="#join"><i class="fas fa-plug"></i> Присоединиться</a>
+        </div>
+
+    </div>
+
+    <!-- Герой -->
+    <div class="hero">
+        <h2>Где каждый шаг звучит</h2>
+        <div class="tagline">
+            <i class="fas fa-microphone-alt"></i> Голосовой чат · 
+            <i class="fas fa-hand-peace"></i> Emotecraft · 
+            <i class="fas fa-cube"></i> 100% Vanilla<br>
+            Без /home, без приватов, без магии — только ты и живой мир
+        </div>
+        <div class="verse">
+            <i class="fas fa-feather-alt"></i> «И сказал Господь: да будет войсчат. И стало тесно в шахте.»
+        </div>
+    </div>
+
+    <!-- Фичи -->
+    <div id="features" class="features">
+        <div class="feature-card">
+            <div class="feature-icon"><i class="fas fa-microphone-alt"></i></div>
+            <h3>Voice Chat</h3>
+            <p>Слышишь шаги, шёпот в шахте и крики на PvP. Общение становится живым — никакого «написал — не дочитал».</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon"><i class="fas fa-hand-peace"></i></div>
+            <h3>Emotecraft</h3>
+            <p>Кивни, покажи жест «стой», станцуй или укажи направление. Слова не нужны, когда есть эмоции.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon"><i class="fas fa-cube"></i></div>
+            <h3>Чистая ванилла</h3>
+            <p>Никаких /home, /tpa, приватов и доната с преимуществами. Выживай по‑честному или договаривайся голосом.</p>
+        </div>
+    </div>
+
+    <!-- ФОРМА ЗАЯВКИ НА ВАЙТЛИСТ -->
+    <div id="whitelist" class="whitelist-form-section">
+        <h3><i class="fas fa-shield-alt"></i> Заявка на вайтлист</h3>
+        <div class="form-desc">
+            <i class="fas fa-info-circle"></i> Заполните форму — заявка придёт администратору в Telegram. После одобрения вы сможете зайти на сервер.
+        </div>
+        <form id="whitelistApplicationForm">
+            <div class="form-group">
+                <label><i class="fas fa-user"></i> Ваш Minecraft никнейм</label>
+                <input type="text" id="playerNickname" placeholder="SteveCraft" required>
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-comment-dots"></i> О себе (по желанию)</label>
+                <textarea id="playerInfo" rows="3" placeholder="Расскажите, откуда узнали о сервере или почему хотите к нам..."></textarea>
+            </div>
+            <button type="submit" class="submit-btn"><i class="fas fa-paper-plane"></i> Отправить заявку</button>
+            <div id="formStatus" class="form-message"></div>
+        </form>
+    </div>
+
+    <!-- Правила -->
+    <div id="rules" class="rules">
+        <h3><i class="fas fa-scroll"></i> Десять заповедей The Living World</h3>
+        <div class="rules-grid">
+            <div class="rule-item"><i class="fas fa-microphone-alt"></i> Говори — не молчи в шахте</div>
+            <div class="rule-item"><i class="fas fa-hand-peace"></i> Показывай эмоции вместо токсичности</div>
+            <div class="rule-item"><i class="fas fa-ban"></i> Не читерить (античит не дремлет)</div>
+            <div class="rule-item"><i class="fas fa-lock-open"></i> Нет приватов — строй на доверии</div>
+            <div class="rule-item"><i class="fas fa-skull"></i> Не грифери с осознанным злом</div>
+            <div class="rule-item"><i class="fas fa-headset"></i> Войсчат — душа сервера, не отключай</div>
+            <div class="rule-item"><i class="fas fa-gem"></i> Алмазы делись (по желанию)</div>
+            <div class="rule-item"><i class="fas fa-bed"></i> Не мешай спать фермерам</div>
+            <div class="rule-item"><i class="fas fa-bolt"></i> Криперы — священны, не отключай</div>
+            <div class="rule-item"><i class="fas fa-heart"></i> Помогай новичкам голосом и делом</div>
+        </div>
+    </div>
+
+    <!-- Инфо-панель -->
+    <div class="info-panel">
+        <div class="info-card">
+            <i class="fas fa-users"></i>
+            <div class="value">24/7</div>
+            <div class="label">онлайн друзей</div>
+        </div>
+        <div class="info-card">
+            <i class="fas fa-tachometer-alt"></i>
+            <div class="value">1.21.11</div>
+            <div class="label">актуальная версия</div>
+        </div>
+        <div class="info-card">
+            <i class="fas fa-shield-alt"></i>
+            <div class="value">Без /home</div>
+            <div class="label">честное выживание</div>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <div id="join" class="cta">
+        <a class="btn btn-discord" href="https://discord.gg/N5nudB8h" target="_blank">
+            <i class="fab fa-discord"></i> Discord сервер
+        </a>
+        <a class="btn" onclick="copyIP()"thelivingworld.20tps.ru>
+            <i class="fas fa-copy"></i> thelivingworld.20tps.ru
+        </a>
+        <p style="margin-top: 18px; font-size: 14px; color: #7e6e50;">
+            <i class="fas fa-mouse-pointer"></i> Нажми на IP, чтобы скопировать — и заходи. Голосом, эмоциями, душой.
+        </p>
+    </div>
+
+    <!-- Футер -->
+    <footer>
+        <p><i class="fas fa-crown"></i> The Living World — ванильный сервер с душой. <i class="fas fa-microphone-alt"></i> Voice Chat + <i class="fas fa-hand-peace"></i> Emotecraft</p>
+        <p style="margin-top: 10px;"><i class="fas fa-lock"></i> Независимый проект · Никакого доната, влияющего на геймплей</p>
+    </footer>
+</div>
+
+<script>
+    function copyIP() {
+        const ipText = document.getElementById('ipAddress').innerText;
+        navigator.clipboard.writeText(ipText).then(() => {
+            const btn = document.querySelector('.ip-copy');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i> IP скопирован!';
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+            }, 1500);
+        }).catch(() => {
+            alert('Не удалось скопировать, но IP: ' + ipText);
+        });
+    }
+
+    // Отправка формы заявки
+    document.getElementById('whitelistApplicationForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const nickname = document.getElementById('playerNickname').value.trim();
+        const info = document.getElementById('playerInfo').value.trim();
+        const statusDiv = document.getElementById('formStatus');
+        
+        if (!nickname) {
+            statusDiv.className = 'form-message error';
+            statusDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Пожалуйста, укажите ваш Minecraft никнейм';
+            return;
+        }
+        
+        statusDiv.className = 'form-message';
+        statusDiv.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Отправка заявки...';
+        statusDiv.style.display = 'block';
+        
+        try {
+            const response = await fetch('/submit_whitelist.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nickname: nickname, info: info })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                statusDiv.className = 'form-message success';
+                statusDiv.innerHTML = '<i class="fas fa-check-circle"></i> ' + result.message;
+                document.getElementById('playerNickname').value = '';
+                document.getElementById('playerInfo').value = '';
+            } else {
+                statusDiv.className = 'form-message error';
+                statusDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + result.message;
+            }
+        } catch (error) {
+            statusDiv.className = 'form-message error';
+            statusDiv.innerHTML = '<i class="fas fa-wifi"></i> Ошибка соединения. Попробуйте позже.';
+        }
+    });
+</script>
+</body>
+</html>
